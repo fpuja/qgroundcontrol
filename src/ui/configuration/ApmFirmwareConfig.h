@@ -28,6 +28,7 @@ private slots:
     void firmwareListError(QNetworkReply::NetworkError error);
     void flashButtonClicked();
     void betaFirmwareButtonClicked(bool betafirmwareenabled);
+    void hilFirmwareButtonClicked(bool hilfirmwareenabled);
     void downloadFinished();
     void firmwareProcessFinished(int status);
     void firmwareProcessReadyRead();
@@ -35,6 +36,7 @@ private slots:
     void firmwareDownloadProgress(qint64 received,qint64 total);
     void requestFirmwares();
     void requestBetaFirmwares();
+    void requestHilFirmwares();
 private:
     void addBetaLabel(QWidget *parent);
     void hideBetaLabels();
@@ -46,6 +48,7 @@ private:
     QList<QLabel*> m_betaButtonLabelList;
     bool stripVersionFromGitReply(QString url,QString reply,QString type,QString stable,QString *out);
     bool m_betaFirmwareChecked;
+    bool m_hilFirmwareChecked;
     QMap<QPushButton*,QString> m_buttonToUrlMap;
     Ui::ApmFirmwareConfig ui;
     class FirmwareDef

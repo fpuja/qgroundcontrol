@@ -13,6 +13,7 @@ ApmFirmwareConfig::ApmFirmwareConfig(QWidget *parent) : QWidget(parent)
     ui.setupUi(this);
     //firmwareStatus = 0;
     m_betaFirmwareChecked = false;
+    m_hilFirmwareChecked = false;
     m_tempFirmwareFile=0;
     //
 
@@ -33,6 +34,7 @@ ApmFirmwareConfig::ApmFirmwareConfig(QWidget *parent) : QWidget(parent)
     connect(ui.y6PushButton,SIGNAL(clicked()),this,SLOT(flashButtonClicked()));
     QTimer::singleShot(10000,this,SLOT(requestFirmwares()));
     connect(ui.betaFirmwareButton,SIGNAL(clicked(bool)),this,SLOT(betaFirmwareButtonClicked(bool)));
+    connect(ui.hilFirmwareButton,SIGNAL(clicked(bool)),this,SLOT(hilFirmwareButtonClicked(bool)));
 
     ui.progressBar->setMaximum(100);
     ui.progressBar->setValue(0);
@@ -80,8 +82,8 @@ void ApmFirmwareConfig::addBetaLabel(QWidget *parent)
     m_betaButtonLabelList.append(label);
 }
 
-void ApmFirmwareConfig::requestBetaFirmwares()
-{
+void ApmFirmwareConfig::requestBetaFirmwares() {
+
     m_betaFirmwareChecked = true;
     showBetaLabels();
     QNetworkReply *reply1 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/beta/apm2-heli/git-version.txt")));
@@ -126,9 +128,57 @@ void ApmFirmwareConfig::requestBetaFirmwares()
     qDebug() << "Getting Beta firmware...";
 }
 
+
+void ApmFirmwareConfig::requestHilFirmwares()
+{
+    m_hilFirmwareChecked = true;
+    //showBetaLabels();
+    QNetworkReply *reply1 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/stable/apm2-heli-hil/git-version.txt")));
+    QNetworkReply *reply2 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/stable/apm2-quad-hil/git-version.txt")));
+    QNetworkReply *reply3 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/beta/apm2-hexa/git-version.txt")));
+    QNetworkReply *reply4 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/beta/apm2-octa/git-version.txt")));
+    QNetworkReply *reply5 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/beta/apm2-octa-quad/git-version.txt")));
+    QNetworkReply *reply6 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/beta/apm2-tri/git-version.txt")));
+    QNetworkReply *reply7 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/beta/apm2-y6/git-version.txt")));
+    QNetworkReply *reply8 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Plane/stable/apm2-hilsensors/git-version.txt")));
+    QNetworkReply *reply9 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Rover/beta/apm2/git-version.txt")));
+
+    m_buttonToUrlMap[ui.roverPushButton] = "http://firmware.diydrones.com/Rover/beta/apm2/APMrover2.hex";
+    m_buttonToUrlMap[ui.planePushButton] = "http://firmware.diydrones.com/Plane/stable/apm2-hilsensors/ArduPlane.hex";
+    m_buttonToUrlMap[ui.copterPushButton] = "http://firmware.diydrones.com/Copter/stable/apm2-heli-hil/ArduCopter.hex";
+    m_buttonToUrlMap[ui.hexaPushButton] = "http://firmware.diydrones.com/Copter/beta/apm2-hexa/ArduCopter.hex";
+    m_buttonToUrlMap[ui.octaQuadPushButton] = "http://firmware.diydrones.com/Copter/beta/apm2-octa-quad/ArduCopter.hex";
+    m_buttonToUrlMap[ui.octaPushButton] = "http://firmware.diydrones.com/Copter/beta/apm2-octa/ArduCopter.hex";
+    m_buttonToUrlMap[ui.quadPushButton] = "http://firmware.diydrones.com/Copter/stable/apm2-quad-hil//ArduCopter.hex";
+    m_buttonToUrlMap[ui.triPushButton] = "http://firmware.diydrones.com/Copter/beta/apm2-tri/ArduCopter.hex";
+    m_buttonToUrlMap[ui.y6PushButton] = "http://firmware.diydrones.com/Copter/beta/apm2-y6/ArduCopter.hex";
+
+    //http://firmware.diydrones.com/Plane/stable/apm2/ArduPlane.hex
+    connect(reply1,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply1,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply2,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply2,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply3,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply3,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply4,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply4,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply5,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply5,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply6,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply6,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply7,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply7,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply8,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply8,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    connect(reply9,SIGNAL(finished()),this,SLOT(firmwareListFinished()));
+    connect(reply9,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(firmwareListError(QNetworkReply::NetworkError)));
+    qDebug() << "Getting HIL firmware...";
+}
+
 void ApmFirmwareConfig::requestFirmwares()
 {
     m_betaFirmwareChecked = false;
+    m_hilFirmwareChecked = false;
     hideBetaLabels();
     QNetworkReply *reply1 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/stable/apm2-heli/git-version.txt")));
     QNetworkReply *reply2 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/stable/apm2-quad/git-version.txt")));
@@ -139,6 +189,7 @@ void ApmFirmwareConfig::requestFirmwares()
     QNetworkReply *reply7 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Copter/stable/apm2-y6/git-version.txt")));
     QNetworkReply *reply8 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Plane/stable/apm2/git-version.txt")));
     QNetworkReply *reply9 = m_networkManager->get(QNetworkRequest(QUrl("http://firmware.diydrones.com/Rover/stable/apm2/git-version.txt")));
+
 
     m_buttonToUrlMap[ui.roverPushButton] = "http://firmware.diydrones.com/Rover/stable/apm2/APMrover2.hex";
     m_buttonToUrlMap[ui.planePushButton] = "http://firmware.diydrones.com/Plane/stable/apm2/ArduPlane.hex";
@@ -187,6 +238,23 @@ void ApmFirmwareConfig::betaFirmwareButtonClicked(bool betafirmwareenabled)
         requestFirmwares();
     }
 }
+
+void ApmFirmwareConfig::hilFirmwareButtonClicked(bool hilfirmwareenabled)
+{
+    if (hilfirmwareenabled)
+    {
+        ui.label->setText(tr("<h2>HIL Firmware</h2>"));
+        ui.hilFirmwareButton->setText(tr("Stable Firmware"));
+        requestHilFirmwares();
+    }
+    else
+    {
+        ui.label->setText(tr("<h2>Firmware</h2>"));
+        ui.hilFirmwareButton->setText(tr("HIL Firmware"));
+        requestFirmwares();
+    }
+}
+
 void ApmFirmwareConfig::firmwareProcessFinished(int status)
 {
     QProcess *proc = qobject_cast<QProcess*>(sender());
@@ -446,7 +514,12 @@ void ApmFirmwareConfig::firmwareListFinished()
     {
         ui.planeLabel->setText((m_betaFirmwareChecked ? "BETA " : "") + outstr);
         return;
-    }
+    } else if (stripVersionFromGitReply(reply->url().toString(),replystr,"apm2-hilsensors",(m_hilFirmwareChecked ? "hil" : "stable"),&outstr))
+	    {
+		ui.planeLabel->setText((m_betaFirmwareChecked ? "HIL " : "") + outstr);
+		return;
+	    }
+    
     if (stripVersionFromGitReply(reply->url().toString(),replystr,"Rover",(m_betaFirmwareChecked ? "beta" : "stable"),&outstr))
     {
         ui.roverLabel->setText((m_betaFirmwareChecked ? "BETA " : "") + outstr);
